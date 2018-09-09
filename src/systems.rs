@@ -3,17 +3,17 @@ use ggez::graphics;
 use ggez::{Context};
 use specs::{System, WriteStorage, ReadStorage, Join};
 
-use components::{Text, Velocity, Controlable};
+use components::{Square, Velocity, Controlable};
 
 pub struct MoveSystem;
 
 impl<'a> System<'a> for MoveSystem {
-    type SystemData = (ReadStorage<'a, Velocity>, WriteStorage<'a, Text>);
+    type SystemData = (ReadStorage<'a, Velocity>, WriteStorage<'a, Square>);
 
-    fn run(&mut self, (vel, mut text): Self::SystemData) {
-        (&vel, &mut text).join().for_each(|(vel, text)| {
-            text.position.x += vel.x * 0.05;
-            text.position.y += vel.y * 0.05;
+    fn run(&mut self, (vel, mut square): Self::SystemData) {
+        (&vel, &mut square).join().for_each(|(vel, square)| {
+            square.position.x += vel.x * 0.05;
+            square.position.y += vel.y * 0.05;
         });
     }
 }
@@ -29,11 +29,20 @@ impl<'c> RenderingSystem<'c> {
 }
 
 impl<'a, 'c> System<'a> for RenderingSystem<'c> {
-    type SystemData = ReadStorage<'a, Text>;
+    type SystemData = ReadStorage<'a, Square>;
 
     fn run(&mut self, texts: Self::SystemData) {
-        &texts.join().for_each(|text| {
-            graphics::draw(self.ctx, &text.value, text.position, 0.0).unwrap();
+        &texts.join().for_each(|square| {
+            graphics::rectangle(
+                self.ctx,
+                graphics::DrawMode::Line(1.0),
+                graphics::Rect::new(
+                    square.position.x,
+                    square.position.y,
+                    square.shape.x,
+                    square.shape.y
+                )
+            ).unwrap();
         });
     }
 }
@@ -61,10 +70,10 @@ impl<'a> System<'a> for ControlSystem {
             match self.down_event {
                 true =>
                     match self.keycode {
-                        event::Keycode::Up => vel.y = -10.0,
-                        event::Keycode::Down => vel.y = 10.0,
-                        event::Keycode::Left => vel.x = -10.0,
-                        event::Keycode::Right => vel.x = 10.0,
+                        event::Keycode::Up => vel.y = -50.0,
+                        event::Keycode::Down => vel.y = 50.0,
+                        event::Keycode::Left => vel.x = -50.0,
+                        event::Keycode::Right => vel.x = 50.0,
                         _ => {}
                     }
                 false =>

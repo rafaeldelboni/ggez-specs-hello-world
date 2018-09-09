@@ -35,10 +35,9 @@ impl<'a, 'b> MainState<'a, 'b> {
             )
             .build();
 
-        let font = graphics::Font::new(ctx, "/DejaVuSerif.ttf", 48)?;
-        entities::create_static(ctx, &mut world, &font);
-        entities::create_moving(ctx, &mut world, &font);
-        entities::create_controled(ctx, &mut world, &font);
+        entities::create_static(&mut world);
+        entities::create_moving(&mut world);
+        entities::create_controled(&mut world);
 
         let state = MainState {
             frames: 0,

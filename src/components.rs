@@ -3,18 +3,17 @@ use ggez::graphics;
 use specs::{Component, NullStorage, VecStorage, World};
 
 pub fn register_components(world: &mut World) {
-    world.register::<Text>();
+    world.register::<Square>();
     world.register::<Velocity>();
     world.register::<Controlable>();
 }
-
 #[derive(Debug)]
-pub struct Text {
-    pub value: graphics::Text,
+pub struct Square {
+    pub shape: graphics::Point2,
     pub position: graphics::Point2,
 }
 
-impl Component for Text {
+impl Component for Square {
     type Storage = VecStorage<Self>;
 }
 
