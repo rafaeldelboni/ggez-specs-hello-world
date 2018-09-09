@@ -1,6 +1,12 @@
 use ggez::graphics;
 
-use specs::{Component, VecStorage};
+use specs::{Component, NullStorage, VecStorage, World};
+
+pub fn register_components(world: &mut World) {
+    world.register::<Text>();
+    world.register::<Velocity>();
+    world.register::<Controlable>();
+}
 
 #[derive(Debug)]
 pub struct Text {
@@ -22,10 +28,10 @@ impl Component for Velocity {
     type Storage = VecStorage<Self>;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Controlable;
 
 impl Component for Controlable {
-    type Storage = VecStorage<Self>;
+    type Storage = NullStorage<Self>;
 }
 

@@ -1,14 +1,9 @@
 use ggez::event;
 use ggez::graphics;
 use ggez::{Context};
-
 use specs::{System, WriteStorage, ReadStorage, Join};
 
 use components::{Text, Velocity, Controlable};
-
-pub struct Systems {
-    pub move_system: MoveSystem,
-}
 
 pub struct MoveSystem;
 

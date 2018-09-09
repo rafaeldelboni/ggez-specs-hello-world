@@ -3,78 +3,56 @@ extern crate specs;
 
 mod systems;
 mod components;
+mod entities;
 
 use ggez::conf;
 use ggez::event;
 use ggez::graphics;
 use ggez::{Context, GameResult};
+use specs::{Dispatcher, DispatcherBuilder, World, RunNow};
 
-use specs::{Builder, World, RunNow};
+use systems::{ControlSystem, RenderingSystem, MoveSystem};
 
-use systems::{Systems, ControlSystem, RenderingSystem, MoveSystem};
-use components::{Controlable, Text, Velocity};
-
-struct MainState {
+struct MainState<'a, 'b> {
     frames: usize,
     world: World,
-    systems: Systems,
+    system_dispatcher: Dispatcher<'a, 'b>,
 }
 
-impl MainState {
-    fn new(ctx: &mut Context) -> GameResult<MainState> {
+impl<'a, 'b> MainState<'a, 'b> {
+    fn new(ctx: &mut Context) -> GameResult<MainState<'a, 'b>> {
         graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
 
         let mut world = World::new();
-        world.register::<Text>();
-        world.register::<Velocity>();
-        world.register::<Controlable>();
 
-        let systems = Systems {
-            move_system: MoveSystem,
-        };
+        components::register_components(&mut world);
+
+        let system_dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
+            .with(
+                MoveSystem,
+                "move_system",
+                &[]
+            )
+            .build();
 
         let font = graphics::Font::new(ctx, "/DejaVuSerif.ttf", 48)?;
-
-        world
-            .create_entity()
-            .with(Text {
-                value: graphics::Text::new(ctx, "Static text!", &font)?,
-                position: graphics::Point2::new(10.0, 10.0)})
-            .build();
-
-        world
-            .create_entity()
-            .with(Text {
-                value: graphics::Text::new(
-                           ctx,
-                           "I'm a moving alone text!",
-                           &font)?,
-                position: graphics::Point2::new(20.0, 200.0)})
-            .with(Velocity { x: 5., y: 5. })
-            .build();
-
-        world
-            .create_entity()
-            .with(Text {
-                value: graphics::Text::new(ctx, "Move-me text!", &font)?,
-                position: graphics::Point2::new(20.0, 400.0)})
-            .with(Velocity { x: 0., y: 0. })
-            .with(Controlable)
-            .build();
+        entities::create_static(ctx, &mut world, &font);
+        entities::create_moving(ctx, &mut world, &font);
+        entities::create_controled(ctx, &mut world, &font);
 
         let state = MainState {
             frames: 0,
             world,
-            systems,
+            system_dispatcher,
         };
 
         Ok(state)
     }
 }
 
-impl event::EventHandler for MainState {
+impl<'a, 'b> event::EventHandler for MainState<'a, 'b> {
     fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
-        self.systems.move_system.run_now(&self.world.res);
+        self.system_dispatcher.dispatch(&self.world.res);
         Ok(())
     }
 
