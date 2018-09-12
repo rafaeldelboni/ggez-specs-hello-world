@@ -4,17 +4,19 @@ extern crate specs;
 mod systems;
 mod components;
 mod entities;
+mod resources;
 
 use ggez::conf;
 use ggez::event;
 use ggez::graphics;
+use ggez::timer;
 use ggez::{Context, GameResult};
 use specs::{Dispatcher, DispatcherBuilder, World, RunNow};
 
+use resources::{DeltaTime};
 use systems::{ControlSystem, RenderingSystem, MoveSystem};
 
 struct MainState<'a, 'b> {
-    frames: usize,
     world: World,
     system_dispatcher: Dispatcher<'a, 'b>,
 }
@@ -24,6 +26,7 @@ impl<'a, 'b> MainState<'a, 'b> {
         graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
 
         let mut world = World::new();
+        world.add_resource(DeltaTime(0.0));
 
         components::register_components(&mut world);
 
@@ -39,7 +42,6 @@ impl<'a, 'b> MainState<'a, 'b> {
         entities::create_controled(&mut world);
 
         let state = MainState {
-            frames: 0,
             world,
             system_dispatcher,
         };
@@ -64,9 +66,12 @@ impl<'a, 'b> event::EventHandler for MainState<'a, 'b> {
 
         graphics::present(ctx);
 
-        self.frames += 1;
-        if (self.frames % 100) == 0 {
-            println!("FPS: {}", ggez::timer::get_fps(ctx));
+        self.world.write_resource::<DeltaTime>().0 = ggez::timer::get_delta(ctx)
+            .subsec_millis() as f32 / 1000.0;
+
+        if timer::get_ticks(ctx) % 100 == 0 {
+            println!("Delta frame time: {:?} ", ggez::timer::get_delta(ctx));
+            println!("Average FPS: {}", ggez::timer::get_fps(ctx));
         }
 
         Ok(())

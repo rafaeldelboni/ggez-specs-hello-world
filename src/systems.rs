@@ -1,22 +1,24 @@
 use ggez::event;
 use ggez::graphics;
 use ggez::{Context};
-use specs::{System, WriteStorage, ReadStorage, Join};
+use specs::{System, WriteStorage, Read, ReadStorage, Join};
 
+use resources::{DeltaTime};
 use components::{AABB, Position, Controlable, Velocity};
 
 pub struct MoveSystem;
 
 impl<'a> System<'a> for MoveSystem {
     type SystemData = (
+        Read<'a, DeltaTime>,
         ReadStorage<'a, Velocity>,
         WriteStorage<'a, Position>,
         WriteStorage<'a, AABB>
     );
 
-    fn run(&mut self, (vel, mut pos, mut aabb): Self::SystemData) {
+    fn run(&mut self, (delta, vel, mut pos, mut aabb): Self::SystemData) {
         (&vel, &mut pos, &mut aabb).join().for_each(|(vel, pos, aabb)| {
-            pos.update(vel.current * 0.05);
+            pos.update(vel.current * delta.0);
             aabb.set_center(pos.current);
         });
     }

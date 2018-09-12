@@ -108,6 +108,23 @@ impl AABB {
         self.center = center + self.offset;
     }
 
+    pub fn set_pushes_right_wall(&mut self, pushes_right_wall: bool) {
+        self.pushed_right_wall = self.pushes_right_wall;
+        self.pushes_right_wall = pushes_right_wall;
+    }
+    pub fn set_pushes_left_wall(&mut self, pushes_left_wall: bool) {
+        self.pushed_left_wall = self.pushes_left_wall;
+        self.pushes_left_wall = pushes_left_wall;
+    }
+    pub fn set_pushes_up_wall(&mut self, pushes_up_wall: bool) {
+        self.pushed_up_wall = self.pushes_up_wall;
+        self.pushes_up_wall = pushes_up_wall;
+    }
+    pub fn set_pushes_down_wall(&mut self, pushes_down_wall: bool) {
+        self.pushed_down_wall = self.pushes_down_wall;
+        self.pushes_down_wall = pushes_down_wall;
+    }
+
     pub fn overlaps(&self, other: AABB) -> bool {
         if (self.center.x - other.center.x).abs() >
             self.halfsize.x + other.halfsize.x {
