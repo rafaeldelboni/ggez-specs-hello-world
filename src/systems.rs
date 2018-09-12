@@ -3,17 +3,21 @@ use ggez::graphics;
 use ggez::{Context};
 use specs::{System, WriteStorage, ReadStorage, Join};
 
-use components::{Square, Velocity, Controlable};
+use components::{AABB, Position, Controlable, Velocity};
 
 pub struct MoveSystem;
 
 impl<'a> System<'a> for MoveSystem {
-    type SystemData = (ReadStorage<'a, Velocity>, WriteStorage<'a, Square>);
+    type SystemData = (
+        ReadStorage<'a, Velocity>,
+        WriteStorage<'a, Position>,
+        WriteStorage<'a, AABB>
+    );
 
-    fn run(&mut self, (vel, mut square): Self::SystemData) {
-        (&vel, &mut square).join().for_each(|(vel, square)| {
-            square.position.x += vel.x * 0.05;
-            square.position.y += vel.y * 0.05;
+    fn run(&mut self, (vel, mut pos, mut aabb): Self::SystemData) {
+        (&vel, &mut pos, &mut aabb).join().for_each(|(vel, pos, aabb)| {
+            pos.update(vel.current * 0.05);
+            aabb.set_center(pos.current);
         });
     }
 }
@@ -29,18 +33,18 @@ impl<'c> RenderingSystem<'c> {
 }
 
 impl<'a, 'c> System<'a> for RenderingSystem<'c> {
-    type SystemData = ReadStorage<'a, Square>;
+    type SystemData = ReadStorage<'a, AABB>;
 
-    fn run(&mut self, texts: Self::SystemData) {
-        &texts.join().for_each(|square| {
+    fn run(&mut self, aabb: Self::SystemData) {
+        aabb.join().for_each(|aabb| {
             graphics::rectangle(
                 self.ctx,
                 graphics::DrawMode::Line(1.0),
                 graphics::Rect::new(
-                    square.position.x,
-                    square.position.y,
-                    square.shape.x,
-                    square.shape.y
+                    aabb.center.x,
+                    aabb.center.y,
+                    aabb.fullsize.x,
+                    aabb.fullsize.y
                 )
             ).unwrap();
         });
@@ -70,18 +74,18 @@ impl<'a> System<'a> for ControlSystem {
             match self.down_event {
                 true =>
                     match self.keycode {
-                        event::Keycode::Up => vel.y = -50.0,
-                        event::Keycode::Down => vel.y = 50.0,
-                        event::Keycode::Left => vel.x = -50.0,
-                        event::Keycode::Right => vel.x = 50.0,
+                        event::Keycode::Up => vel.y(-50.0),
+                        event::Keycode::Down => vel.y(50.0),
+                        event::Keycode::Left => vel.x(-50.0),
+                        event::Keycode::Right => vel.x(50.0),
                         _ => {}
                     }
                 false =>
                     match self.keycode {
-                        event::Keycode::Up => vel.y = 0.0,
-                        event::Keycode::Down => vel.y = 0.0,
-                        event::Keycode::Left => vel.x = 0.0,
-                        event::Keycode::Right => vel.x = 0.0,
+                        event::Keycode::Up => vel.y(0.0),
+                        event::Keycode::Down => vel.y(0.0),
+                        event::Keycode::Left => vel.x(0.0),
+                        event::Keycode::Right => vel.x(0.0),
                         _ => {}
                     }
             }

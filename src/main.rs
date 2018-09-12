@@ -36,7 +36,6 @@ impl<'a, 'b> MainState<'a, 'b> {
             .build();
 
         entities::create_static(&mut world);
-        entities::create_moving(&mut world);
         entities::create_controled(&mut world);
 
         let state = MainState {
