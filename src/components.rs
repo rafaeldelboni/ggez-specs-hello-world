@@ -27,7 +27,8 @@ impl Position {
 
     pub fn update(&mut self, position: graphics::Vector2) {
         self.old = self.current;
-        self.current += position;
+        self.current.x += position.x.round();
+        self.current.y += position.y.round();
     }
 }
 
