@@ -25,10 +25,14 @@ impl Position {
         }
     }
 
-    pub fn update(&mut self, position: graphics::Vector2) {
-        self.old = self.current;
-        self.current.x += position.x.round();
-        self.current.y += position.y.round();
+    pub fn y(&mut self, y: f32) {
+        self.old.y = self.current.y;
+        self.current.y += y;
+    }
+
+    pub fn x(&mut self, x: f32) {
+        self.old.x = self.current.x;
+        self.current.x += x;
     }
 }
 

@@ -18,7 +18,18 @@ impl<'a> System<'a> for MoveSystem {
 
     fn run(&mut self, (delta, vel, mut pos, mut aabb): Self::SystemData) {
         (&vel, &mut pos, &mut aabb).join().for_each(|(vel, pos, aabb)| {
-            pos.update(vel.current * delta.0);
+            if vel.current.x > 0. && !aabb.pushes_right_wall {
+                pos.x(vel.current.x * delta.0);
+            }
+            if vel.current.x < 0. && !aabb.pushes_left_wall {
+                pos.x(vel.current.x * delta.0);
+            }
+            if vel.current.y > 0. && !aabb.pushes_up_wall {
+                pos.y(vel.current.y * delta.0);
+            }
+            if vel.current.y < 0. && !aabb.pushes_down_wall {
+                pos.y(vel.current.y * delta.0);
+            }
             aabb.set_center(pos.current);
         });
     }
