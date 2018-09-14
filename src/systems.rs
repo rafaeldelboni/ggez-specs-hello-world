@@ -18,17 +18,18 @@ impl<'a> System<'a> for MoveSystem {
 
     fn run(&mut self, (delta, vel, mut pos, mut aabb): Self::SystemData) {
         (&vel, &mut pos, &mut aabb).join().for_each(|(vel, pos, aabb)| {
-            if vel.current.x > 0. && !aabb.pushes_right_wall {
-                pos.x(vel.current.x * delta.0);
+            let delta_velocity = vel.get() * delta.0;
+            if delta_velocity.x >= 0. && !aabb.pushes_right_wall {
+                pos.x(delta_velocity.x);
             }
-            if vel.current.x < 0. && !aabb.pushes_left_wall {
-                pos.x(vel.current.x * delta.0);
+            if delta_velocity.x < 0. && !aabb.pushes_left_wall {
+                pos.x(delta_velocity.x);
             }
-            if vel.current.y > 0. && !aabb.pushes_up_wall {
-                pos.y(vel.current.y * delta.0);
+            if delta_velocity.y >= 0. && !aabb.pushes_up_wall {
+                pos.y(delta_velocity.y);
             }
-            if vel.current.y < 0. && !aabb.pushes_down_wall {
-                pos.y(vel.current.y * delta.0);
+            if delta_velocity.y < 0. && !aabb.pushes_down_wall {
+                pos.y(delta_velocity.y);
             }
             aabb.set_center(pos.current);
         });
@@ -87,10 +88,10 @@ impl<'a> System<'a> for ControlSystem {
             match self.down_event {
                 true =>
                     match self.keycode {
-                        event::Keycode::Up => vel.y(-50.0),
-                        event::Keycode::Down => vel.y(50.0),
-                        event::Keycode::Left => vel.x(-50.0),
-                        event::Keycode::Right => vel.x(50.0),
+                        event::Keycode::Up => vel.y(-200.0),
+                        event::Keycode::Down => vel.y(200.0),
+                        event::Keycode::Left => vel.x(-200.0),
+                        event::Keycode::Right => vel.x(200.0),
                         _ => {}
                     }
                 false =>

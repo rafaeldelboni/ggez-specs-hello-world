@@ -27,12 +27,12 @@ impl Position {
 
     pub fn y(&mut self, y: f32) {
         self.old.y = self.current.y;
-        self.current.y += y;
+        self.current.y += y.round();
     }
 
     pub fn x(&mut self, x: f32) {
         self.old.x = self.current.x;
-        self.current.x += x;
+        self.current.x += x.round();
     }
 }
 
@@ -49,6 +49,15 @@ impl Velocity {
         Velocity {
             old: initial.clone(),
             current: initial.clone(),
+        }
+    }
+
+    pub fn get(&self) -> graphics::Vector2 {
+        if self.current.x != 0.0 && self.current.y != 0.0 {
+            let pi_inverse = 1.0 / (2.0 as f32).sqrt();
+            self.current * pi_inverse
+        } else {
+            self.current
         }
     }
 
