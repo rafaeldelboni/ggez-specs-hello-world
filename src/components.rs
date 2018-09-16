@@ -150,4 +150,13 @@ impl AABB {
             }
         return true;
     }
+
+    pub fn collides_down_wall(
+        &self,
+        position: Position,
+        velocity: Velocity,
+    ) -> bool {
+        true
+    }
+
 }

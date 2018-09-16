@@ -20,7 +20,7 @@ pub fn create_controled(world: &mut World) {
     world
         .create_entity()
         .with(AABB::new(
-                graphics::Vector2::new(100.0, 100.0),
+                graphics::Vector2::new(16.0, 16.0),
                 graphics::Vector2::new(20.0, 400.0),
                 graphics::Vector2::new(0.0, 0.0)
         ))
