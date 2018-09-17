@@ -2,10 +2,12 @@ use ggez::graphics;
 
 use specs::{Component, NullStorage, VecStorage, World};
 
+use resources::{Map};
+
 pub fn register_components(world: &mut World) {
     world.register::<Position>();
     world.register::<Velocity>();
-    world.register::<Controlable>();
+    world.register::<ControledByInput>();
     world.register::<AABB>();
 }
 
@@ -73,8 +75,8 @@ impl Velocity {
 }
 
 #[derive(Debug, Default)]
-pub struct Controlable;
-impl Component for Controlable {
+pub struct ControledByInput;
+impl Component for ControledByInput {
     type Storage = NullStorage<Self>;
 }
 
@@ -105,7 +107,7 @@ impl AABB {
         AABB {
             halfsize: fullsize / 2.0,
             fullsize: fullsize,
-            center: center,
+            center: center + fullsize / 2.0,
             offset: offset,
             pushed_right_wall: false,
             pushes_right_wall: false,
@@ -119,22 +121,22 @@ impl AABB {
     }
 
     pub fn set_center(&mut self, center: graphics::Vector2) {
-        self.center = center + self.offset;
+        self.center = center + self.halfsize + self.offset;
     }
 
-    pub fn set_pushes_right_wall(&mut self, pushes_right_wall: bool) {
+    fn set_pushes_right_wall(&mut self, pushes_right_wall: bool) {
         self.pushed_right_wall = self.pushes_right_wall;
         self.pushes_right_wall = pushes_right_wall;
     }
-    pub fn set_pushes_left_wall(&mut self, pushes_left_wall: bool) {
+    fn set_pushes_left_wall(&mut self, pushes_left_wall: bool) {
         self.pushed_left_wall = self.pushes_left_wall;
         self.pushes_left_wall = pushes_left_wall;
     }
-    pub fn set_pushes_up_wall(&mut self, pushes_up_wall: bool) {
+    fn set_pushes_up_wall(&mut self, pushes_up_wall: bool) {
         self.pushed_up_wall = self.pushes_up_wall;
         self.pushes_up_wall = pushes_up_wall;
     }
-    pub fn set_pushes_down_wall(&mut self, pushes_down_wall: bool) {
+    fn set_pushes_down_wall(&mut self, pushes_down_wall: bool) {
         self.pushed_down_wall = self.pushes_down_wall;
         self.pushes_down_wall = pushes_down_wall;
     }
@@ -151,12 +153,43 @@ impl AABB {
         return true;
     }
 
-    pub fn collides_down_wall(
-        &self,
-        position: Position,
-        velocity: Velocity,
-    ) -> bool {
-        true
+    pub fn collides_right_wall(&mut self, _position: &Position, _velocity: &graphics::Vector2) {
+        self.set_pushes_right_wall(false);
     }
-
+    pub fn collides_left_wall(&mut self, _position: &Position, _velocity: &graphics::Vector2) {
+        self.set_pushes_left_wall(false);
+    }
+    pub fn collides_up_wall(&mut self, _position: &Position, _velocity: &graphics::Vector2) {
+        self.set_pushes_up_wall(false);
+    }
+    pub fn collides_down_wall(
+        &mut self,
+        position: &mut Position,
+        _velocity: &graphics::Vector2,
+        map: &Map
+    ) {
+        let bottom_left = graphics::Vector2::new(
+            position.current.x + 1.0,
+            position.current.y + self.fullsize.y + 1.0
+        );
+        let bottom_right = graphics::Vector2::new(
+            bottom_left.x + self.fullsize.x - 2.0,
+            bottom_left.y
+        );
+        let mut checked_tile = bottom_left.clone();
+        loop {
+            checked_tile.x = checked_tile.x.min(bottom_right.x);
+            let tile_index = map.get_tile_at_point(
+                graphics::Point2::new(checked_tile.x, checked_tile.y)
+            );
+            if map.is_obstacle(tile_index.x as isize, tile_index.y as isize) {
+                return self.set_pushes_down_wall(true);
+            }
+            if checked_tile.x >= bottom_right.x {
+                break;
+            }
+            checked_tile.x += map.tile_size;
+        }
+        return self.set_pushes_down_wall(false);
+    }
 }

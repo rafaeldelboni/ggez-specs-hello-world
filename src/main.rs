@@ -8,13 +8,14 @@ mod resources;
 
 use ggez::conf;
 use ggez::event;
+use ggez::event::{Keycode};
 use ggez::graphics;
 use ggez::timer;
 use ggez::{Context, GameResult};
 use specs::{Dispatcher, DispatcherBuilder, World, RunNow};
 
-use resources::{DeltaTime};
-use systems::{ControlSystem, RenderingSystem, MoveSystem};
+use resources::{DeltaTime, Map, InputControls};
+use systems::{ControlableSystem, RenderingSystem, MoveSystem};
 
 struct MainState<'a, 'b> {
     world: World,
@@ -27,19 +28,17 @@ impl<'a, 'b> MainState<'a, 'b> {
 
         let mut world = World::new();
         world.add_resource(DeltaTime(0.0));
+        world.add_resource(InputControls::new());
+        world.add_resource(Map::demo());
 
         components::register_components(&mut world);
 
         let system_dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
-            .with(
-                MoveSystem,
-                "move_system",
-                &[]
-            )
+            .with(ControlableSystem, "controlable", &[])
+            .with(MoveSystem, "move_system", &["controlable"])
             .build();
 
-        entities::create_static(&mut world);
-        entities::create_controled(&mut world);
+        entities::create_player(&mut world);
 
         let state = MainState {
             world,
@@ -82,10 +81,19 @@ impl<'a, 'b> event::EventHandler for MainState<'a, 'b> {
         _context: &mut Context,
         keycode: event::Keycode,
         _keymod: event::Mod,
-        _repeat: bool
+        repeat: bool
     ) {
-        let mut cs = ControlSystem::new(keycode, true);
-        cs.run_now(&mut self.world.res);
+        let mut input = self.world.write_resource::<InputControls>();
+
+        if !repeat {
+            match keycode {
+                Keycode::Left => input.left = true,
+                Keycode::Right => input.right = true,
+                Keycode::Up => input.up = true,
+                Keycode::Down => input.down = true,
+                _ => (),
+            }
+        }
     }
 
     fn key_up_event(
@@ -93,11 +101,18 @@ impl<'a, 'b> event::EventHandler for MainState<'a, 'b> {
         _context: &mut Context,
         keycode: event::Keycode,
         _keymod: event::Mod,
-        _repeat: bool
-
+        repeat: bool
     ) {
-        let mut cs = ControlSystem::new(keycode, false);
-        cs.run_now(&mut self.world.res);
+        let mut input = self.world.write_resource::<InputControls>();
+        if !repeat {
+            match keycode {
+                Keycode::Left => input.left = false,
+                Keycode::Right => input.right = false,
+                Keycode::Up => input.up = false,
+                Keycode::Down => input.down = false,
+                _ => (),
+            }
+        }
     }
 }
 
