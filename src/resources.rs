@@ -68,9 +68,9 @@ impl Map {
                 vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
                 vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
                 vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
-                vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
-                vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
                 vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
+                vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
+                vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
                 vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
                 vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
                 vec![ TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block ],
@@ -99,9 +99,17 @@ impl Map {
 
     pub fn get_map_tile_position(&self, x: f32, y: f32) -> graphics::Vector2 {
         graphics::Vector2::new(
-            x as f32 * self.tile_size + self.position.x,
-            y as f32 * self.tile_size + self.position.y,
+            self.get_map_tile_x_position(x),
+            self.get_map_tile_y_position(y)
         )
+    }
+
+    pub fn get_map_tile_x_position(&self, x: f32) -> f32 {
+        x as f32 * self.tile_size + self.position.x
+    }
+
+    pub fn get_map_tile_y_position(&self, y: f32) -> f32 {
+        y as f32 * self.tile_size + self.position.y
     }
 
     pub fn get_map_tile_position_vec(&self, coords: graphics::Point2)
