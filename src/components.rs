@@ -30,7 +30,12 @@ impl Position {
 
     pub fn set_y(&mut self, y: f32) {
         self.old.y = self.current.y;
-        self.current.y = y.round();
+        self.current.y = y;
+    }
+
+    pub fn set_x(&mut self, x: f32) {
+        self.old.x = self.current.x;
+        self.current.x = x;
     }
 
     pub fn y(&mut self, y: f32) {
@@ -161,67 +166,5 @@ impl AABB {
                 return false;
             }
         return true;
-    }
-
-    pub fn collides_right_wall(&mut self, _position: &Position, _velocity: &graphics::Vector2) -> bool {
-        self.set_pushes_right_wall(false)
-    }
-    pub fn collides_left_wall(&mut self, _position: &Position, _velocity: &graphics::Vector2) -> bool{
-        self.set_pushes_left_wall(false)
-    }
-    pub fn collides_up_wall(&mut self, _position: &Position, _velocity: &graphics::Vector2) -> bool{
-        self.set_pushes_up_wall(false)
-    }
-    pub fn collides_down_wall(
-        &mut self,
-        position: &mut Position,
-        _velocity: &graphics::Vector2,
-        map: &Map
-    ) -> bool {
-        let old_bottom_left = graphics::Vector2::new(
-            position.old.x + 1.0,
-            position.old.y + self.fullsize.y + 1.0
-        );
-        let new_bottom_left = graphics::Vector2::new(
-            position.current.x + 1.0,
-            position.current.y + self.fullsize.y + 1.0
-        );
-
-        let end_y = map.get_tile_y_at_point(new_bottom_left.y);
-        let beg_y = cmp::max(map.get_tile_y_at_point(old_bottom_left.y) - 1, end_y);
-        let dist = cmp::max((end_y - beg_y).abs(), 1);
-
-        for tile_index_y in (end_y..beg_y + 1).rev() {
-            let bottom_left = self.lerp(
-                &new_bottom_left,
-                &old_bottom_left,
-                (end_y - tile_index_y).abs() as f32 / dist as f32,
-            );
-            let bottom_right = graphics::Vector2::new(
-                bottom_left.x + self.fullsize.x - 2.0,
-                bottom_left.y
-            );
-
-            let mut checked_tile = bottom_left.clone();
-            loop {
-                checked_tile.x = checked_tile.x.min(bottom_right.x);
-                let tile_index = map.get_tile_at_point(
-                    graphics::Point2::new(checked_tile.x, checked_tile.y)
-                );
-                if map.is_obstacle(tile_index.x as isize, tile_index.y as isize) {
-                    position.set_y(map.get_map_tile_y_position(tile_index.y) - self.fullsize.y);
-                    return self.set_pushes_down_wall(true)
-                }
-                if checked_tile.x >= bottom_right.x {
-                    break
-                }
-                checked_tile.x += map.tile_size;
-            }
-        }
-        return self.set_pushes_down_wall(false)
-    }
-
-    pub fn lerp(&mut self, v1: &graphics::Vector2, v2: &graphics::Vector2, by: f32) -> graphics::Vector2 {
-        (v1 * (1.0 - by)) + v2 * by
     }
 }

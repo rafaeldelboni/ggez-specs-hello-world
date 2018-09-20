@@ -6,6 +6,55 @@ use resources::{DeltaTime, InputControls, Map, TileType};
 use components::{AABB, ControledByInput, Position, Velocity};
 
 pub struct MoveSystem;
+impl MoveSystem {
+    pub fn tilemap_collision(map: &Map, pos: &Position, aabb: &AABB) -> bool {
+        let ab_left = pos.current.x;
+        let ab_right = pos.current.x + aabb.fullsize.x;
+        let ab_up = pos.current.y;
+        let ab_down = pos.current.y + aabb.fullsize.y;
+
+        let mut left_tile = (ab_left / map.tile_size as f32) as isize;
+        let mut right_tile = (ab_right / map.tile_size as f32) as isize;
+        let mut top_tile = (ab_up / map.tile_size as f32) as isize;
+        let mut down_tile = (ab_down / map.tile_size as f32) as isize;
+
+        if left_tile < 0 { left_tile = 0; }
+        if right_tile > map.width as isize { right_tile = map.width as isize; }
+        if top_tile < 0 { top_tile = 0; }
+        if down_tile > map.height as isize { down_tile = map.height as isize; }
+
+        for tile_index_x in left_tile..right_tile+1 {
+            for tile_index_y in top_tile..down_tile+1 {
+                if map.is_obstacle(tile_index_x as isize, tile_index_y as isize) {
+                    let tile_index = map.get_map_tile_position(
+                        tile_index_x as f32,
+                        tile_index_y as f32
+                    );
+
+                    let tl_left = tile_index.x;
+                    let tl_right = tile_index.x + map.tile_size;
+                    let tl_up = tile_index.y;
+                    let tl_down = tile_index.y + map.tile_size;
+
+                    let left_colide = ab_left < tl_right;
+                    let right_colide = ab_right > tl_left;
+                    let up_colide = ab_up < tl_down;
+                    let down_colide = ab_down > tl_up;
+
+                    let collision = left_colide &&
+                        right_colide &&
+                        up_colide &&
+                        down_colide;
+
+                    if collision {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+}
 impl<'a> System<'a> for MoveSystem {
     type SystemData = (
         Read<'a, Map>,
@@ -19,19 +68,18 @@ impl<'a> System<'a> for MoveSystem {
         (&mut vel, &mut pos, &mut aabb).join().for_each(|(vel, pos, aabb)| {
             let delta_vel = vel.get() * delta.0;
 
-            if delta_vel.x >= 0. && !aabb.collides_right_wall(&pos, &delta_vel) {
-                pos.x(delta_vel.x);
+            let mut old_pos = pos.current.clone();
+            pos.x(delta_vel.x);
+            if MoveSystem::tilemap_collision(&map, pos, aabb) {
+                vel.x(0.0);
+                pos.set_x(old_pos.x);
             }
-            if delta_vel.x < 0. && !aabb.collides_left_wall(&pos, &delta_vel) {
-                pos.x(delta_vel.x);
-            }
-            if delta_vel.y < 0. && !aabb.collides_up_wall(&pos, &delta_vel) {
-                pos.y(delta_vel.y);
-            }
-            if delta_vel.y >= 0. && !aabb.collides_down_wall(pos, &delta_vel, &map) {
-                pos.y(delta_vel.y);
-            } else {
-                vel.y(0.);
+
+            old_pos = pos.current.clone();
+            pos.y(delta_vel.y);
+            if MoveSystem::tilemap_collision(&map, pos, aabb) {
+                vel.y(0.0);
+                pos.set_y(old_pos.y);
             }
 
             aabb.set_center(pos.current);
@@ -50,16 +98,16 @@ impl<'a> System<'a> for ControlableSystem {
     fn run(&mut self, (input, controlled, mut vel): Self::SystemData) {
         (&controlled, &mut vel).join().for_each(|(_ctrled, vel)| {
             if input.left {
-                vel.x(-600.0);
+                vel.x(-300.0);
             } else if input.right {
-                vel.x(600.0);
+                vel.x(300.0);
             } else {
                 vel.x(0.0);
             }
             if input.up {
-                vel.y(-600.0);
+                vel.y(-300.0);
             } else if input.down {
-                vel.y(600.0);
+                vel.y(300.0);
             } else {
                 vel.y(0.0);
             }
@@ -83,8 +131,7 @@ impl<'a, 'c> System<'a> for RenderingSystem<'c> {
 
     fn run(&mut self, (map, aabb): Self::SystemData) {
         aabb.join().for_each(|aabb| {
-            graphics::rectangle(
-                self.ctx,
+            graphics::rectangle( self.ctx,
                 graphics::DrawMode::Line(1.0),
                 graphics::Rect::new(
                     aabb.center.x - aabb.halfsize.x,

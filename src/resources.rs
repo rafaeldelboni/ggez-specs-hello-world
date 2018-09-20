@@ -77,7 +77,7 @@ impl Map {
             ],
             position: PositionVector { x: 0.0, y: 0.0 },
             width: 25,
-            height: 20,
+            height: 19,
             tile_size: 32.0,
         }
     }
