@@ -35,6 +35,7 @@ impl Default for InputControls {
 pub enum TileType {
     Empty,
     Block,
+    Slope45,
 }
 
 #[derive(Debug, Default)]
@@ -70,9 +71,9 @@ impl Map {
                 vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
                 vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
                 vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
-                vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
-                vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
-                vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
+                vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block, TileType::Slope45, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
+                vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Slope45, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
+                vec![ TileType::Block, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Slope45, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Empty, TileType::Block ],
                 vec![ TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block, TileType::Block ],
             ],
             position: PositionVector { x: 0.0, y: 0.0 },
@@ -135,6 +136,10 @@ impl Map {
 
     pub fn is_obstacle(&self, x: isize, y: isize) -> bool {
         self.get_tile(x, y) == TileType::Block
+    }
+
+    pub fn is_slope(&self, x: isize, y: isize) -> bool {
+        self.get_tile(x, y) == TileType::Slope45
     }
 
     pub fn is_empty(&self, x: isize, y: isize) -> bool {

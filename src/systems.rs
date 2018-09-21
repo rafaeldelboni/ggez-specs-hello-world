@@ -50,6 +50,48 @@ impl MoveSystem {
                         return true;
                     }
                 }
+                if map.is_slope(tile_index_x as isize, tile_index_y as isize) {
+                    let tile_index = map.get_map_tile_position(
+                        tile_index_x as f32,
+                        tile_index_y as f32
+                    );
+
+                    let triangle = [
+                        graphics::Point2::new(tile_index.x + 1., tile_index.y + 1.),
+                        graphics::Point2::new(tile_index.x + map.tile_size + 1., tile_index.y + map.tile_size + 1.),
+                        graphics::Point2::new(tile_index.x + 1., tile_index.y + map.tile_size + 1.)
+                    ];
+
+                    let square = [
+                        graphics::Point2::new(ab_left, ab_up),
+                        graphics::Point2::new(ab_right, ab_up),
+                        graphics::Point2::new(ab_right, ab_down),
+                        graphics::Point2::new(ab_left, ab_down)
+                    ];
+
+                    let colided = MoveSystem::polygon_collision(&triangle, &square);
+                    return colided;
+                }
+            }
+        }
+        return false;
+    }
+    pub fn polygon_collision(poly1: &[graphics::Point2], poly2: &[graphics::Point2]) -> bool {
+        for s in 0..poly2.len() {
+            let mut collision = false;
+            for actual in 0..poly1.len() {
+                let next = (actual + 1) % poly1.len();
+
+                if ((poly1[actual].y > poly2[s].y) != (poly1[next].y > poly2[s].y))
+                    && (poly2[s].x < (poly1[next].x - poly1[actual].x) *
+                        (poly2[s].y - poly1[actual].y) /
+                        (poly1[next].y - poly1[actual].y) + poly1[actual].x) 
+                    {
+                        collision = !collision;
+                    }
+            }
+            if collision == true {
+                return true;
             }
         }
         return false;
@@ -155,6 +197,18 @@ impl<'a, 'c> System<'a> for RenderingSystem<'c> {
                             map.tile_size,
                             map.tile_size
                         )
+                    ).unwrap();
+                }
+                if tile == &TileType::Slope45 {
+                    let tile_pos = map.get_map_tile_position(x as f32, y  as f32);
+                    graphics::polygon(
+                        self.ctx,
+                        graphics::DrawMode::Line(1.0),
+                        &[
+                            graphics::Point2::new(tile_pos.x, tile_pos.y),
+                            graphics::Point2::new(tile_pos.x + map.tile_size, tile_pos.y + map.tile_size),
+                            graphics::Point2::new(tile_pos.x, tile_pos.y + map.tile_size),
+                        ]
                     ).unwrap();
                 }
             }
