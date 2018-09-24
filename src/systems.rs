@@ -50,6 +50,7 @@ impl MoveSystem {
                         return true;
                     }
                 }
+
                 if map.is_slope(tile_index_x as isize, tile_index_y as isize) {
                     let tile_index = map.get_map_tile_position(
                         tile_index_x as f32,
@@ -57,9 +58,9 @@ impl MoveSystem {
                     );
 
                     let triangle = [
-                        graphics::Point2::new(tile_index.x + 1., tile_index.y + 1.),
+                        graphics::Point2::new(tile_index.x - 1., tile_index.y - 1.),
                         graphics::Point2::new(tile_index.x + map.tile_size + 1., tile_index.y + map.tile_size + 1.),
-                        graphics::Point2::new(tile_index.x + 1., tile_index.y + map.tile_size + 1.)
+                        graphics::Point2::new(tile_index.x - 1., tile_index.y + map.tile_size + 1.)
                     ];
 
                     let square = [
@@ -69,13 +70,17 @@ impl MoveSystem {
                         graphics::Point2::new(ab_left, ab_down)
                     ];
 
-                    let colided = MoveSystem::polygon_collision(&triangle, &square);
-                    return colided;
+                    let collision = MoveSystem::polygon_collision(&triangle, &square);
+
+                    if collision {
+                        return true;
+                    }
                 }
             }
         }
         return false;
     }
+
     pub fn polygon_collision(poly1: &[graphics::Point2], poly2: &[graphics::Point2]) -> bool {
         for s in 0..poly2.len() {
             let mut collision = false;
@@ -90,7 +95,7 @@ impl MoveSystem {
                         collision = !collision;
                     }
             }
-            if collision == true {
+            if collision {
                 return true;
             }
         }
