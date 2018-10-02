@@ -43,6 +43,10 @@ Run in debug mode:
 cargo run
 ```
 
+## 5. Examples with Physics:
+  - [nphysics](https://github.com/rafaeldelboni/ggez-specs-nphysics-hello-world)
+  - [rhusics](https://github.com/rafaeldelboni/ggez-specs-rhusics-hello-world)
+
 ## Credits
 Engine: https://github.com/ggez/ggez
 
